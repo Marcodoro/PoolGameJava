@@ -3,14 +3,14 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 public class DesktopLauncher {
 
-    public static int height = 600;
-    public static int width = 800;
+    public static int height = 720;
+    public static int width = 1280;
 
     public static void main(String[] arg) {
         // Configure the window settings
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 
-        config.setTitle("My Custom 2D Game");
+        config.setTitle("Balls");
         config.setWindowedMode(width, height); // Width, Height in pixels
         config.useVsync(true);            // Caps frame rate to your monitor's refresh rate
 

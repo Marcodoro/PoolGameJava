@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector2;
+
 import java.util.ArrayList;
 
 public class Game extends ApplicationAdapter {
@@ -21,8 +23,8 @@ public class Game extends ApplicationAdapter {
     private float speed = 350f;
     private boolean isAiming = false;
 
-    private float height = 600f;
-    private float width = 800f;
+    private float height = 720f;
+    private float width = 1280f;
 
     private int rows = 12;
     private int cols = 16;
@@ -35,6 +37,8 @@ public class Game extends ApplicationAdapter {
 
 
 
+
+
         System.out.println(levelGrid);
         batch = new SpriteBatch();
 
@@ -44,6 +48,7 @@ public class Game extends ApplicationAdapter {
 
 
         playerBall = new Circle((float) width / 2, (float) height / 2, 0f, 0f, 50f, Color.RED);
+        handleInput(playerBall);
 
         testBalls = new ArrayList<>();
         for (int c = 0; c < 5; c++) {
@@ -108,6 +113,7 @@ public class Game extends ApplicationAdapter {
 
             collisionFromWalls(ballA);
 
+
             for (int j = i + 1; j < testBalls.size(); j++) {
                 Circle ballB = testBalls.get(j);
                 handleCollisionBalls(ballA, ballB);
@@ -115,6 +121,11 @@ public class Game extends ApplicationAdapter {
 
             ballA.dy *= 0.998f;
             ballA.dx *= 0.998f;
+            if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+                ballA.dx = (float) Math.random() * 1150f;
+                ballA.dy = (float) Math.random() * 1150f;
+
+            }
 
             if (Math.abs(ballA.dx) < stopThreshold && Math.abs(ballA.dy) < stopThreshold) {
                 ballA.dx *= 0.97f;
@@ -126,6 +137,12 @@ public class Game extends ApplicationAdapter {
             }
 
             ballA.draw(shapeRenderer);
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+            playerBall.dx = (float) Math.random() * 1150f;
+            playerBall.dy = (float) Math.random() * 1150f;
+
         }
 
         if (Math.abs(playerBall.dx) < stopThreshold && Math.abs(playerBall.dy) < stopThreshold) {
@@ -155,6 +172,10 @@ public class Game extends ApplicationAdapter {
 
     public void handleInput(Circle playerBall) {
 
+        Vector2 position = new Vector2( (float) playerBall.x, (float) playerBall.y);
+        //The coordinates mismatch between the renderer and mouse input is some bullshit this took me way too long to figure out!
+        Vector2 mousePos = new Vector2 ((float) Gdx.input.getX(), (float) height - Gdx.input.getY());
+
         float distancex = (float) Gdx.input.getX() - playerBall.x;
         float distancey = (height - (float) Gdx.input.getY()) - playerBall.y;
         float mouseX = Gdx.input.getX();
@@ -163,15 +184,23 @@ public class Game extends ApplicationAdapter {
         //lets stop zhe ball first
         if (playerBall.dy == 0 && playerBall.dx == 0){
             if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+
                 if ((mouseX > playerBall.x - playerBall.size) && (mouseX < playerBall.x + playerBall.size) &&
                     (mouseY > playerBall.y - playerBall.size) && (mouseY < playerBall.y + playerBall.size))
                 {
+
+
                     isAiming = true;
 
                     float distanceOverall = distancey + distancex;
                 }
+                if (isAiming == true) {
+                    shapeRenderer.setColor(Color.BLUE);
+                    shapeRenderer.rectLine(position, mousePos, 5f);
+                }
 
             } else if (isAiming == true) {
+
                 distancex = distancex * -1;
                 distancey = distancey * -1;
                 playerBall.dx = distancex * 2;
@@ -188,15 +217,16 @@ public class Game extends ApplicationAdapter {
         float diffY = playerBall.y - testBall.y;
         float distance = (float) Math.sqrt((diffX * diffX) + (diffY * diffY));
 
-        // 1. Only run the physics if they are actually touching!
+        // if they are touchigng
         if (distance <= playerBall.size + testBall.size) {
+
+
+            //  The overlapping bs
+            float overlap = (playerBall.size + testBall.size) - distance;
+            float pushAmount = (overlap / 2f) * 1.05f;
 
             float dirX = diffX / distance;
             float dirY = diffY / distance;
-
-            // 2. The overlapping bs (mandatory to stop them from gluing together)
-            float overlap = (playerBall.size + testBall.size) - distance;
-            float pushAmount = (overlap / 2f) * 1.05f;
 
             playerBall.x += dirX * pushAmount;
             playerBall.y += dirY * pushAmount;
@@ -217,7 +247,6 @@ public class Game extends ApplicationAdapter {
                 float dotPlayerNormal = (playerBall.dx * dirX) + (playerBall.dy * dirY);
                 float dotTestNormal = (testBall.dx * dirX) + (testBall.dy * dirY);
 
-                // 3. Fixed parentheses so friction scales the entire sliding speed
                 float dotPlayerTangent = ((playerBall.dx * tanX) + (playerBall.dy * tanY)) * friction;
                 float dotTestTangent = ((testBall.dx * tanX) + (testBall.dy * tanY)) * friction;
 
