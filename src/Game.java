@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 
+import java.security.Key;
 import java.util.ArrayList;
 
 public class Game extends ApplicationAdapter {
@@ -18,6 +19,7 @@ public class Game extends ApplicationAdapter {
 
     private Square playerSquare;
     private float inputWaitTimerGoodName;
+    private ArrayList<Circle> squareCircles;
     private Circle playerBall;
     private ArrayList<Circle> testBalls;
     private float speed = 350f;
@@ -56,6 +58,18 @@ public class Game extends ApplicationAdapter {
             testBalls.add(newBall);
         }
 
+        squareCircles = new ArrayList<>();
+        float offset = 50f;
+
+        for (int b = 0; b < 4; b++) {
+
+            float spawnX = offset + (b % 2) * (width - (offset * 2));
+
+            float spawnY = offset + (b / 2) * (height - (offset * 2));
+
+            Circle cornerBalls = new Circle(spawnX, spawnY, 0f, 0f, 50f, Color.YELLOW);
+            squareCircles.add(cornerBalls);
+        }
 
 
     }
@@ -102,6 +116,31 @@ public class Game extends ApplicationAdapter {
 
         float stopThreshold = 60.0f; //to stop the ball from rolling on forever a a super slow speed
 
+        for (int i = 0; i < squareCircles.size(); i++) {
+
+            Circle ballB = squareCircles.get(i);
+
+            ballB.update(deltaTime);
+
+            handleCollisionBalls(playerBall, ballB);
+
+            collisionFromWalls(ballB);
+
+            float mouseY = height - Gdx.input.getY();
+
+            boolean debug = true;
+
+            //prepare for the most brutal if statement ever
+            //!! ITS VERY IMPORTANT DO NOT TOUCH THIS EVER FOR ANY REASON !!
+            // !! EVEN THE SLIGHTEST CHANGE WILL BREAK EVERYTHING !!
+            for (int j = i + 1; j < testBalls.size(); j++) {
+
+                ballsInTheHole(playerBall, ballB);
+
+            }
+            ballB.draw(shapeRenderer);
+        }
+
 
         //to be honest i have no idea what this does but i guess if it works dont touch it
         for (int i = 0; i < testBalls.size(); i++) {
@@ -113,11 +152,26 @@ public class Game extends ApplicationAdapter {
 
             collisionFromWalls(ballA);
 
+            float mouseY = height - Gdx.input.getY();
 
+            boolean debug = true;
+
+            //prepare for the most brutal if statement ever
+            //!! ITS VERY IMPORTANT DO NOT TOUCH THIS EVER FOR ANY REASON !!
+            // !! EVEN THE SLIGHTEST CHANGE WILL BREAK EVERYTHING !!
             for (int j = i + 1; j < testBalls.size(); j++) {
                 Circle ballB = testBalls.get(j);
+                if ((Gdx.input.getX() >= ballA.x - ballA.size && Gdx.input.getX() <= ballA.x + ballA.size) && ((height - Gdx.input.getY()) >= ballA.y - ballA.size && (height - Gdx.input.getY()) <= ballA.y + ballA.size) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && (ballA.dx == 0 && ballA.dy == 0) && debug == true)) {
+                    ballA.y = mouseY;
+                    ballA.x = Gdx.input.getX();
+                }
+                if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+                    System.out.println(ballA.x + "Here" + ballA.y);
+                }
                 handleCollisionBalls(ballA, ballB);
             }
+
+
 
             ballA.dy *= 0.998f;
             ballA.dx *= 0.998f;
@@ -159,6 +213,14 @@ public class Game extends ApplicationAdapter {
         shapeRenderer.end();
 
         batch.end();
+    }
+    //too tired lets do this tomorrow check if balls are in the holes
+    //if yes then the balls should quickly become smaller until they are
+    //so small and then just remove them from the array
+    public void ballsInTheHole(Circle ball, Circle holes) {
+        if (playerBall.x >= holes.x) {
+            System.out.println("FOR TOMORROW");
+        }
     }
 
     public void collisionFromWalls(Circle Ball) {
