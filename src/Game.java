@@ -122,7 +122,6 @@ public class Game extends ApplicationAdapter {
 
             ballB.update(deltaTime);
 
-            handleCollisionBalls(playerBall, ballB);
 
             collisionFromWalls(ballB);
 
@@ -130,9 +129,7 @@ public class Game extends ApplicationAdapter {
 
             boolean debug = true;
 
-            //prepare for the most brutal if statement ever
-            //!! ITS VERY IMPORTANT DO NOT TOUCH THIS EVER FOR ANY REASON !!
-            // !! EVEN THE SLIGHTEST CHANGE WILL BREAK EVERYTHING !!
+
             for (int j = i + 1; j < testBalls.size(); j++) {
 
                 ballsInTheHole(playerBall, ballB);
@@ -140,8 +137,6 @@ public class Game extends ApplicationAdapter {
             }
             ballB.draw(shapeRenderer);
         }
-
-
         //to be honest i have no idea what this does but i guess if it works dont touch it
         for (int i = 0; i < testBalls.size(); i++) {
             Circle ballA = testBalls.get(i);
@@ -154,7 +149,7 @@ public class Game extends ApplicationAdapter {
 
             float mouseY = height - Gdx.input.getY();
 
-            boolean debug = true;
+            boolean debug = false;
 
             //prepare for the most brutal if statement ever
             //!! ITS VERY IMPORTANT DO NOT TOUCH THIS EVER FOR ANY REASON !!
@@ -175,11 +170,6 @@ public class Game extends ApplicationAdapter {
 
             ballA.dy *= 0.998f;
             ballA.dx *= 0.998f;
-            if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-                ballA.dx = (float) Math.random() * 1150f;
-                ballA.dy = (float) Math.random() * 1150f;
-
-            }
 
             if (Math.abs(ballA.dx) < stopThreshold && Math.abs(ballA.dy) < stopThreshold) {
                 ballA.dx *= 0.97f;
@@ -192,6 +182,8 @@ public class Game extends ApplicationAdapter {
 
             ballA.draw(shapeRenderer);
         }
+
+
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             playerBall.dx = (float) Math.random() * 1150f;
@@ -214,12 +206,21 @@ public class Game extends ApplicationAdapter {
 
         batch.end();
     }
+
+    public void randomSpeed(Circle ballA, Circle ballB) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+            ballA.dx = (float) Math.random() * 1150f;
+            ballA.dy = (float) Math.random() * 1150f;
+            ballB.dx = (float) Math.random() * 1150f;
+            ballB.dy = (float) Math.random() * 1150f;
+        }
+    }
     //too tired lets do this tomorrow check if balls are in the holes
     //if yes then the balls should quickly become smaller until they are
     //so small and then just remove them from the array
     public void ballsInTheHole(Circle ball, Circle holes) {
         if (playerBall.x >= holes.x) {
-            System.out.println("FOR TOMORROW");
+
         }
     }
 
