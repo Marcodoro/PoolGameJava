@@ -1,6 +1,9 @@
+import com.badlogic.gdx.graphics.Colors;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+
 
 public class Circle {
     public float x;
@@ -28,4 +31,5 @@ public class Circle {
         shapeRenderer.setColor(this.color);
         shapeRenderer.circle(this.x, this.y, this.size);
     }
+
 }

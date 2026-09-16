@@ -30,17 +30,176 @@ public class Game extends ApplicationAdapter {
 
     private int rows = 12;
     private int cols = 16;
-
+    private Boolean isGameGoing = false;
+    private Square buttons;
 
     int[][] levelGrid = new int[rows][cols];
 
     @Override
     public void create() {
+        menu();
+    }
+
+    @Override
+    public void render() {
+        game();
+    }
+
+    public void game() {
+        if (isGameGoing) {
+
+
+            float deltaTime = Gdx.graphics.getDeltaTime();
+
+
+            //System.out.println(Gdx.input.getX());
+
+            Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+            batch.begin();
 
 
 
 
 
+            //draw things here
+            //System.out.println(enemySquare.x);
+
+
+
+
+            playerBall.update(deltaTime);
+
+            shapeRenderer.begin(ShapeType.Filled);
+
+
+
+
+
+            //Important functions i guess
+            handleInput(playerBall);
+            collisionFromWalls(playerBall);
+
+
+
+            playerBall.dy *= (float) 0.998f;
+            playerBall.dx *= (float) 0.998f;
+
+            float stopThreshold = 60.0f; //to stop the ball from rolling on forever a a super slow speed
+
+            for (int i = 0; i < squareCircles.size(); i++) {
+
+                Circle ballB = squareCircles.get(i);
+
+                ballB.update(deltaTime);
+
+
+                collisionFromWalls(ballB);
+
+                float mouseY = height - Gdx.input.getY();
+
+                boolean debug = true;
+
+
+                for (int j = i + 1; j < testBalls.size(); j++) {
+
+                    ballsInTheHole(playerBall, ballB);
+
+                }
+                ballB.draw(shapeRenderer);
+            }
+            //to be honest i have no idea what this does but i guess if it works dont touch it
+            for (int i = 0; i < testBalls.size(); i++) {
+                Circle ballA = testBalls.get(i);
+
+                ballA.update(deltaTime);
+
+                handleCollisionBalls(playerBall, ballA);
+
+                collisionFromWalls(ballA);
+
+                float mouseY = height - Gdx.input.getY();
+
+                boolean debug = false;
+
+                //prepare for the most brutal if statement ever
+                //!! ITS VERY IMPORTANT DO NOT TOUCH THIS EVER FOR ANY REASON !!
+                // !! EVEN THE SLIGHTEST CHANGE WILL BREAK EVERYTHING !!
+                for (int j = i + 1; j < testBalls.size(); j++) {
+                    Circle ballB = testBalls.get(j);
+                    if ((Gdx.input.getX() >= ballA.x - ballA.size && Gdx.input.getX() <= ballA.x + ballA.size) && ((height - Gdx.input.getY()) >= ballA.y - ballA.size && (height - Gdx.input.getY()) <= ballA.y + ballA.size) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && (ballA.dx == 0 && ballA.dy == 0) && debug == true)) {
+                        ballA.y = mouseY;
+                        ballA.x = Gdx.input.getX();
+                    }
+                    if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+                        System.out.println(ballA.x + "Here" + ballA.y);
+                    }
+                    handleCollisionBalls(ballA, ballB);
+                }
+
+
+
+                ballA.dy *= 0.998f;
+                ballA.dx *= 0.998f;
+
+                if (Math.abs(ballA.dx) < stopThreshold && Math.abs(ballA.dy) < stopThreshold) {
+                    ballA.dx *= 0.97f;
+                    ballA.dy *= 0.97f;
+                    if (Math.abs(ballA.dx) < 1f && Math.abs(ballA.dy) < 1f) {
+                        ballA.dy = 0;
+                        ballA.dx = 0;
+                    }
+                }
+
+                ballA.draw(shapeRenderer);
+            }
+
+
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
+                playerBall.dx = (float) Math.random() * 1150f;
+                playerBall.dy = (float) Math.random() * 1150f;
+
+            }
+
+            if (Math.abs(playerBall.dx) < stopThreshold && Math.abs(playerBall.dy) < stopThreshold) {
+                playerBall.dx *= (float) 0.97f;
+                playerBall.dy *= (float) 0.97f;
+                if (Math.abs(playerBall.dx) < 1f && Math.abs(playerBall.dy) < 1f) {
+                    playerBall.dy = 0;
+                    playerBall.dx = 0;
+                }
+            }
+
+            playerBall.draw(shapeRenderer);
+
+            shapeRenderer.end();
+
+            batch.end();
+        }
+        else {
+            menu();
+        }
+    }
+    public void menu() {
+        System.out.println("Work in progress");
+        batch = new SpriteBatch();
+        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.begin();
+        shapeRenderer.begin(ShapeType.Filled);
+        //error shape renderer is null fix someday
+        buttons = new Square((float) width / 2f, (float) height / 2f, 200f, 0f, 0f, 0f);
+        buttons.draw(shapeRenderer);
+
+        shapeRenderer.end();
+        batch.end();
+        shapeRenderer = new ShapeRenderer();
+    }
+
+    public void start() {
         System.out.println(levelGrid);
         batch = new SpriteBatch();
 
@@ -71,140 +230,6 @@ public class Game extends ApplicationAdapter {
             squareCircles.add(cornerBalls);
         }
 
-
-    }
-
-    @Override
-    public void render() {
-
-        float deltaTime = Gdx.graphics.getDeltaTime();
-
-
-        //System.out.println(Gdx.input.getX());
-
-        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        batch.begin();
-
-
-
-
-
-        //draw things here
-        //System.out.println(enemySquare.x);
-
-
-
-
-        playerBall.update(deltaTime);
-
-        shapeRenderer.begin(ShapeType.Filled);
-
-
-
-
-
-        //Important functions i guess
-        handleInput(playerBall);
-        collisionFromWalls(playerBall);
-
-
-
-        playerBall.dy *= (float) 0.998f;
-        playerBall.dx *= (float) 0.998f;
-
-        float stopThreshold = 60.0f; //to stop the ball from rolling on forever a a super slow speed
-
-        for (int i = 0; i < squareCircles.size(); i++) {
-
-            Circle ballB = squareCircles.get(i);
-
-            ballB.update(deltaTime);
-
-
-            collisionFromWalls(ballB);
-
-            float mouseY = height - Gdx.input.getY();
-
-            boolean debug = true;
-
-
-            for (int j = i + 1; j < testBalls.size(); j++) {
-
-                ballsInTheHole(playerBall, ballB);
-
-            }
-            ballB.draw(shapeRenderer);
-        }
-        //to be honest i have no idea what this does but i guess if it works dont touch it
-        for (int i = 0; i < testBalls.size(); i++) {
-            Circle ballA = testBalls.get(i);
-
-            ballA.update(deltaTime);
-
-            handleCollisionBalls(playerBall, ballA);
-
-            collisionFromWalls(ballA);
-
-            float mouseY = height - Gdx.input.getY();
-
-            boolean debug = false;
-
-            //prepare for the most brutal if statement ever
-            //!! ITS VERY IMPORTANT DO NOT TOUCH THIS EVER FOR ANY REASON !!
-            // !! EVEN THE SLIGHTEST CHANGE WILL BREAK EVERYTHING !!
-            for (int j = i + 1; j < testBalls.size(); j++) {
-                Circle ballB = testBalls.get(j);
-                if ((Gdx.input.getX() >= ballA.x - ballA.size && Gdx.input.getX() <= ballA.x + ballA.size) && ((height - Gdx.input.getY()) >= ballA.y - ballA.size && (height - Gdx.input.getY()) <= ballA.y + ballA.size) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && (ballA.dx == 0 && ballA.dy == 0) && debug == true)) {
-                    ballA.y = mouseY;
-                    ballA.x = Gdx.input.getX();
-                }
-                if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-                    System.out.println(ballA.x + "Here" + ballA.y);
-                }
-                handleCollisionBalls(ballA, ballB);
-            }
-
-
-
-            ballA.dy *= 0.998f;
-            ballA.dx *= 0.998f;
-
-            if (Math.abs(ballA.dx) < stopThreshold && Math.abs(ballA.dy) < stopThreshold) {
-                ballA.dx *= 0.97f;
-                ballA.dy *= 0.97f;
-                if (Math.abs(ballA.dx) < 1f && Math.abs(ballA.dy) < 1f) {
-                    ballA.dy = 0;
-                    ballA.dx = 0;
-                }
-            }
-
-            ballA.draw(shapeRenderer);
-        }
-
-
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-            playerBall.dx = (float) Math.random() * 1150f;
-            playerBall.dy = (float) Math.random() * 1150f;
-
-        }
-
-        if (Math.abs(playerBall.dx) < stopThreshold && Math.abs(playerBall.dy) < stopThreshold) {
-            playerBall.dx *= (float) 0.97f;
-            playerBall.dy *= (float) 0.97f;
-            if (Math.abs(playerBall.dx) < 1f && Math.abs(playerBall.dy) < 1f) {
-                playerBall.dy = 0;
-                playerBall.dx = 0;
-            }
-        }
-
-        playerBall.draw(shapeRenderer);
-
-        shapeRenderer.end();
-
-        batch.end();
     }
 
     public void randomSpeed(Circle ballA, Circle ballB) {
@@ -219,8 +244,9 @@ public class Game extends ApplicationAdapter {
     //if yes then the balls should quickly become smaller until they are
     //so small and then just remove them from the array
     public void ballsInTheHole(Circle ball, Circle holes) {
-        if (playerBall.x >= holes.x) {
-
+        //System.out.println(holes.x + "f" + holes.y);
+        if ((playerBall.x <= holes.x + holes.size) && (playerBall.x >= holes.x - holes.size) && (playerBall.y <= holes.y + holes.size) && (playerBall.y >= holes.y - holes.size)) {
+            //Something happens
         }
     }
 
