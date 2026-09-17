@@ -30,14 +30,14 @@ public class Game extends ApplicationAdapter {
 
     private int rows = 12;
     private int cols = 16;
-    private Boolean isGameGoing = false;
+    private Boolean isGameGoing;
     private Square buttons;
 
     int[][] levelGrid = new int[rows][cols];
 
     @Override
     public void create() {
-        menu();
+        start();
     }
 
     @Override
@@ -46,7 +46,6 @@ public class Game extends ApplicationAdapter {
     }
 
     public void game() {
-        if (isGameGoing) {
 
 
             float deltaTime = Gdx.graphics.getDeltaTime();
@@ -54,10 +53,10 @@ public class Game extends ApplicationAdapter {
 
             //System.out.println(Gdx.input.getX());
 
-            Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.begin();
+        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-            batch.begin();
 
 
 
@@ -160,7 +159,6 @@ public class Game extends ApplicationAdapter {
             if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
                 playerBall.dx = (float) Math.random() * 1150f;
                 playerBall.dy = (float) Math.random() * 1150f;
-
             }
 
             if (Math.abs(playerBall.dx) < stopThreshold && Math.abs(playerBall.dy) < stopThreshold) {
@@ -177,13 +175,11 @@ public class Game extends ApplicationAdapter {
             shapeRenderer.end();
 
             batch.end();
-        }
-        else {
-            menu();
-        }
+
     }
     public void menu() {
-        System.out.println("Work in progress");
+        shapeRenderer = new ShapeRenderer();
+
         batch = new SpriteBatch();
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -193,10 +189,16 @@ public class Game extends ApplicationAdapter {
         //error shape renderer is null fix someday
         buttons = new Square((float) width / 2f, (float) height / 2f, 200f, 0f, 0f, 0f);
         buttons.draw(shapeRenderer);
+        float mouseY = (float) height - Gdx.input.getY();
+        if ((float) Gdx.input.getX() >= buttons.x && (float) Gdx.input.getX() <= buttons.x + buttons.size &&
+            (float) mouseY >= buttons.y && (float) mouseY <= buttons.y + buttons.size) {
+            if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                //good
+            }
+        }
 
         shapeRenderer.end();
         batch.end();
-        shapeRenderer = new ShapeRenderer();
     }
 
     public void start() {
