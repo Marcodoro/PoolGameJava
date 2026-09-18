@@ -106,8 +106,10 @@ public class Game extends ApplicationAdapter {
                     ballsInTheHole(playerBall, ballB);
 
                 }
+                ballsInTheHole(playerBall, ballB);
                 ballB.draw(shapeRenderer);
             }
+
             //to be honest i have no idea what this does but i guess if it works dont touch it
             for (int i = 0; i < testBalls.size(); i++) {
                 Circle ballA = testBalls.get(i);
@@ -127,6 +129,7 @@ public class Game extends ApplicationAdapter {
                 // !! EVEN THE SLIGHTEST CHANGE WILL BREAK EVERYTHING !!
                 for (int j = i + 1; j < testBalls.size(); j++) {
                     Circle ballB = testBalls.get(j);
+                    ballsInTheHoleNotPlayerBall(ballA, ballB);
                     if ((Gdx.input.getX() >= ballA.x - ballA.size && Gdx.input.getX() <= ballA.x + ballA.size) && ((height - Gdx.input.getY()) >= ballA.y - ballA.size && (height - Gdx.input.getY()) <= ballA.y + ballA.size) && (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && (ballA.dx == 0 && ballA.dy == 0) && debug == true)) {
                         ballA.y = mouseY;
                         ballA.x = Gdx.input.getX();
@@ -210,12 +213,12 @@ public class Game extends ApplicationAdapter {
 
 
 
-        playerBall = new Circle((float) width / 2, (float) height / 2, 0f, 0f, 50f, Color.RED);
+        playerBall = new Circle((float) 1200f, (float) height / 2, 0f, 0f, 50f, Color.RED);
         handleInput(playerBall);
 
         testBalls = new ArrayList<>();
         for (int c = 0; c < 5; c++) {
-            Circle newBall = new Circle((float) 100f + (c * 100f), 100f + (c * 100f), 0f, 0f, 50f, Color.GREEN);
+            Circle newBall = new Circle((float) 100f + (c * 200f), 360f, 0f, 0f, 50f, Color.GREEN);
             testBalls.add(newBall);
         }
 
@@ -248,10 +251,21 @@ public class Game extends ApplicationAdapter {
     public void ballsInTheHole(Circle ball, Circle holes) {
         //System.out.println(holes.x + "f" + holes.y);
         if ((playerBall.x <= holes.x + holes.size) && (playerBall.x >= holes.x - holes.size) && (playerBall.y <= holes.y + holes.size) && (playerBall.y >= holes.y - holes.size)) {
-            //Something happens
+            ball.dx = 0;
+            ball.dy = 0;
+            ball.x =  1200f;
+            ball.y =  360f;
         }
     }
-
+    public void ballsInTheHoleNotPlayerBall(Circle ball, Circle holes) {
+        if ((playerBall.x <= holes.x + holes.size) && (playerBall.x >= holes.x - holes.size) && (playerBall.y <= holes.y + holes.size) && (playerBall.y >= holes.y - holes.size)) {
+            ball.dx = 0;
+            ball.dy = 0;
+            System.out.println("hole");
+            ball.x =  12100f;
+            ball.y =  1360f;
+        }
+    }
     public void collisionFromWalls(Circle Ball) {
         if (Ball.x <= Ball.size || Ball.x >= width - Ball.size) {
             Ball.dx = (float) Ball.dx * -1f;
@@ -354,6 +368,4 @@ public class Game extends ApplicationAdapter {
             }
         }
     }
-
-
 }
